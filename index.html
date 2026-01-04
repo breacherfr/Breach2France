@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breach2Bz - Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #161616;
+            --accent-blue: #1d61ff;
+            --text-main: #ffffff;
+            --text-dim: #888888;
+            --error-red: #ff3333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Barre de navigation haute */
+        nav {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .nav-item {
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+        }
+
+        /* Section Stats (Cartes) */
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            flex: 1;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-card .icon {
+            background: #222;
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--text-dim);
+        }
+
+        .stat-card div span {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .stat-card div strong {
+            font-size: 1.1rem;
+        }
+
+        /* Section Principale */
+        .main-content {
+            margin-top: 80px;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            margin-bottom: 25px;
+        }
+
+        /* Formulaire */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            width: 100%;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Message d'erreur */
+        #status-message {
+            margin-top: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            min-height: 30px;
+        }
+
+        .error-text {
+            color: var(--error-red);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-item" style="color: #0f0;">● 7 en ligne</div>
+        <div class="nav-item" style="background: #00a86b;">Contact</div>
+        <div class="nav-item" style="background: #5865F2;">Discord</div>
+    </nav>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="icon">🔍</div>
+            <div><span>Recherches aujourd'hui</span><strong>1</strong></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">📈</div>
+            <div><span>Recherches totales</span><strong>99437</strong></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon">📁</div>
+            <div><span>Lignes totales</span><strong>1 316 467 090</strong></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>TU ME BREACH FR</h1>
+        <p class="subtitle">Veuillez entrer la clé d'accès :</p>
+        
+        <div class="input-group">
+            <input type="password" id="keyInput" placeholder="Clé de sécurité...">
+        </div>
+        
+        <button onclick="validate()">EXECUTER</button>
+
+        <div id="status-message"></div>
+    </div>
+
+    <script>
+        function validate() {
+            const key = document.getElementById('keyInput').value;
+            const message = document.getElementById('status-message');
+
+            if (key === "liamestropmooche") {
+                // Même avec la bonne clé, on refuse
+                message.innerHTML = '<span class="error-text">CLÉ INVALIDE - ACCÈS REFUSÉ</span>';
+            } else if (key === "") {
+                message.innerHTML = '<span style="color: #888;">CHAMP VIDE</span>';
+            } else {
+                message.innerHTML = '<span class="error-text">ACCÈS REFUSÉ</span>';
+            }
+        }
+
+        // Support de la touche Entrée
+        document.getElementById('keyInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') { validate(); }
+        });
+    </script>
+
+</body>
+</html>
